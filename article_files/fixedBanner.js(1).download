@@ -1,0 +1,107 @@
+/* 四捨五入至小數點第Ｎ位 */
+function formatFloat(num, pos) {
+  let size = Math.pow(10, pos);
+  return Math.round(num * size) / size;
+}
+
+
+function bannerFixed(bottomClass, bottomDelta, fixedTopClass, fixedClass, topDelta) {
+
+    let fixedTop = 0;
+    let fixedbottom_init = 0;
+    if ($(fixedTopClass).offset() != undefined)
+        fixedTop = formatFloat($(fixedTopClass).offset().top, 0) - 90;		// 固定內容高度
+    let fixedH_init = parseInt($(fixedClass).css('height'));	// 固定內容長度
+    if ($(bottomClass).offset() != undefined)
+        fixedbottom_init = formatFloat($(bottomClass).offset().top, 0) - bottomDelta;	// 結束固定基準物件
+
+
+	if(Number(fixedbottom_init-fixedTop) - 150 < fixedH_init) {
+		return
+	}
+
+	$(window).scroll(function(e) {
+		let fixedH = parseInt($(fixedClass).css('height'))		// 固定內容長度
+		let wscroll = $(e.currentTarget).scrollTop()			// 畫面滾動數值
+		let fixedbottom = formatFloat($(bottomClass).position().top,0) - bottomDelta	// 結束固定基準物件	
+		let webH = parseInt($('.main_wapper').css('height'))	// 整個網頁長度
+		
+		if(WEB_GLOBAL.VIEW_STATE === 'xl') {
+			if(wscroll >= fixedTop){
+				if(wscroll <= (fixedbottom - fixedH + 110) + fixedTop){
+					$(fixedClass).css({
+						position:'fixed',
+						top: topDelta,
+					})
+				} else {
+					if(fixedbottom > fixedH){
+						$(fixedClass).css({
+							position:'absolute',
+							top: (fixedbottom - fixedH) - 10,
+						})
+					}
+				}
+			} else {
+				$(fixedClass).css({
+					position:'relative',
+					top:'0',
+				})
+			}
+		} else {
+			$(fixedClass).css({
+				position:'relative',
+				top:'0',
+			})
+		}
+	})
+}
+
+
+function shareFixed(bottomClass, bottomDelta, fixedTopClass, fixedClass, topDelta, device) {
+    let init_topSet = 0;
+    let init_fixedTop = 0;
+    if ($(fixedTopClass).position().top != undefined)
+        init_topSet = formatFloat($(fixedTopClass).position().top, 0);
+    if ($(fixedTopClass).offset().top != undefined)
+        init_fixedTop = formatFloat($(fixedTopClass).offset().top, 0);		// 固定內容高度
+	// let fixedH_init = parseInt($(fixedClass).css('height'))		// 固定內容長度
+    let init_bh = $(window).height();
+    let fixedbottom_init = formatFloat($(bottomClass).offset().top, 0) - bottomDelta;	// 結束固定基準物件
+	if(device == 'pc') {
+        $(fixedClass).css({ top: init_topSet });
+	} else {
+        $(fixedClass).css({ top: init_topSet + init_bh - topDelta });
+	}
+
+	$(window).scroll(function(e) {
+        let topSet = formatFloat($(fixedTopClass).position().top, 0);
+        let fixedTop = formatFloat($(fixedTopClass).offset().top, 0);
+        let wscroll = $(e.currentTarget).scrollTop();		// 畫面滾動數值
+        let bh = $(window).height();
+		if(device == 'pc'){
+			if(wscroll > fixedTop) {
+				if(wscroll > fixedbottom_init - bh){
+                    $(fixedClass).fadeOut('fast');
+				} else {
+                    $(fixedClass).fadeIn('fast');
+                    $(fixedClass).css({ top: wscroll - fixedTop + bh / 2 });
+				}
+			} else {
+                $(fixedClass).css({ top: topSet });
+			}
+		} else{
+			if(wscroll > fixedTop - bh ) {
+				if(wscroll > fixedbottom_init - bh - 700){
+                    $(fixedClass).fadeOut('fast');
+				} else {
+                    $(fixedClass).fadeIn('fast');
+                    $(fixedClass).css({ top: wscroll + bh - 50 });
+				}
+			} else {
+                $(fixedClass).fadeOut('fast');
+                $(fixedClass).css({ top: topSet + bh - topDelta });
+			}
+		}
+	})
+
+}

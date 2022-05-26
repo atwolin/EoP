@@ -1,0 +1,848 @@
+(function () {
+'use strict';
+
+function MENU(m, bar, wrapper) {
+	var main_curr = 0;
+	var menu_sub = m;
+	var menu_bar = bar;
+	function toggleMenu() {
+		if (menu_sub.hasClass('open')) {
+			$('.header-menu,.header-all,.main_wapper,footer').removeClass('active');
+		} else {
+			$('.header-menu,.header-all,.main_wapper,footer').addClass('active');
+		}
+		menu_sub.toggleClass('open');
+		// menu_bar.toggleClass('x')
+	}
+	function set_main_curr(num) {
+		if (Number(num) !== Number(main_curr)) {
+			main_curr = num;
+			// $('.menu_item' + main_curr + ' a').css('color','#ffe900')
+		}
+	}
+	function set_mouseState(num, state) {
+		if (Number(num) !== Number(main_curr)) {
+			if (state === 'over') {
+				$('.menu_item' + num).addClass('mouseOver');
+			} else {
+				$('.menu_item' + num).removeClass('mouseOver');
+			}
+		}
+	}
+
+	function bind() {
+		menu_bar.bind('click', toggleMenu);
+		$('.mSearch').bind('click', toggleMenu);
+		$('.menu_item').bind('mouseover', function (e) {
+			var obj = $(e.currentTarget);
+			var obj_id = obj.attr('data-id');
+			if (obj.hasClass('active')) {
+				return;
+			}
+			if (!device.mobile() && !device.tablet()) {
+				set_mouseState(obj_id, 'over');
+			}
+		});
+		$('.menu_item').bind('mouseout', function (e) {
+			var obj = $(e.currentTarget);
+			var obj_id = obj.attr('data-id');
+			if (obj.hasClass('active')) {
+				return;
+			}
+			if (!device.mobile() && !device.tablet()) {
+				set_mouseState(obj_id, 'out');
+			}
+		});
+
+		$('.menu3_item').bind('mouseover', function (e) {
+			var obj = $(e.currentTarget);
+			var obj_id = obj.attr('data-id');
+			if (!device.mobile() && !device.tablet()) {
+				$('.menu3_item' + obj_id).addClass('mouseOver');
+			}
+		});
+		$('.menu3_item').bind('mouseout', function (e) {
+			var obj = $(e.currentTarget);
+			var obj_id = obj.attr('data-id');
+			if (!device.mobile() && !device.tablet()) {
+				$('.menu3_item' + obj_id).removeClass('mouseOver');
+			}
+		});
+
+		$('.menu3_item').bind('click', function (e) {
+			var obj = $(e.currentTarget);
+			var obj_id = obj.attr('data-id');
+			if (device.mobile() || device.tablet()) {
+				$('.menu3_item').removeClass('mouseOver');
+				$('.menu3_item' + obj_id).addClass('mouseOver');
+			}
+		});
+
+		$('.menu_item0').bind('click', function (e) {
+			var obj = $(e.currentTarget);
+			e.preventDefault();
+			if (WEB_GLOBAL.VIEW_STATE === 'xl') {
+				$('.search_part').addClass('searchOpen');
+			}
+		});
+		$('.search_close').bind('click', function (e) {
+			$('.search_part').removeClass('searchOpen');
+		});
+	}
+	this.setMainCurr = function (num) {
+		set_main_curr(num);
+	};
+	this.init = function () {
+		bind();
+		if (!device.mobile() && !device.tablet()) {
+			// hashBind()
+		}
+	};
+}
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+var LoadModle = function () {
+	function LoadModle(imgs) {
+		var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+		classCallCheck(this, LoadModle);
+
+		this.$imgs = imgs;
+		this.imagesN = imgs.length;
+		this.cb = cb;
+		this.c = 0;
+		this.count = 0;
+		this.oldInd = 0;
+		this.init();
+	}
+
+	createClass(LoadModle, [{
+		key: 'pngFix',
+		value: function pngFix() {
+			var _this = this;
+
+			var self = $(this);
+			self.find('img[src$=\'.png\'],img[src$=\'.gif\']').each(function () {
+				console.log('png Fix!....');
+				_this.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=\'true\',sizingMethod=\'image\',src=\'' + _this.src + '\')';
+			});
+		}
+	}, {
+		key: 'init',
+		value: function init() {
+			var _this2 = this;
+
+			/* preventScroll() */
+			/* this.reset()*/
+			this.$imgs.imagesLoaded().progress(function (instance, image) {
+				_this2.count += 1;
+				var percent = Math.round(_this2.count / _this2.$imgs.length * 100);
+				var ind = parseInt(percent / 11, 10) + 1;
+				_this2.oldInd = ind;
+				$('.percent').text(percent);
+				if (_this2.count === _this2.$imgs.length) {
+					_this2.pngFix();
+					if (_this2.cb) {
+						_this2.cb();
+					}
+				}
+			});
+		}
+	}], [{
+		key: 'reset',
+		value: function reset() {}
+	}, {
+		key: 'anim',
+		value: function anim(typ) {}
+	}]);
+	return LoadModle;
+}();
+
+// Blength() 是用來計算string 以Byte為單位
+// subBtyes(str, max)是用來切割Btyes(str:被切割字串, max:最大Bytes數)
+// 例: '我abc我'.Blength() = 7
+// subBtyes('我abc我', 3) // 結果是 我a
+// 
+function subBtyes(str, max) {
+	var i = void 0;
+	for (i = 0; i < str.length; i++) {
+		var SubBtyeSum = str.substring(0, i).Blength2();
+		if (SubBtyeSum >= max) {
+			// return str.substring(0,max) + '...';
+			break;
+		}
+	}
+	return str.substring(0, i);
+}
+
+String.prototype.Blength2 = function () {
+	var str = this.match(/[^\x00-\xff]/ig);
+	return str === null ? this.length : this.length + str.length;
+};
+
+function Blength(mystr) {
+	var str = mystr.match(/[^\x00-\xff]/ig);
+	return str === null ? mystr.length : mystr.length + str.length;
+}
+
+/* getBrowserHeight */
+function getBrowserHeight() {
+	var ll_object_h = void 0;
+	if (document.body.clientHeight) {
+		ll_object_h = document.body.clientHeight * 1;
+	}
+	if (document.documentElement.clientHeight) {
+		ll_object_h = document.documentElement.clientHeight * 1;
+	}
+	if (window.innerHeight) {
+		ll_object_h = window.innerHeight * 1;
+	}
+	return ll_object_h;
+}
+
+// getBrowserWidth
+function getBrowserWidth() {
+	var ll_object_w = void 0;
+	if (document.body.clientWidth) {
+		ll_object_w = document.body.clientWidth * 1;
+	}
+	if (document.documentElement.clientWidth) {
+		ll_object_w = document.documentElement.clientWidth * 1;
+	}
+	if (window.innerWidth) {
+		ll_object_w = window.innerWidth * 1;
+	}
+	return ll_object_w;
+}
+
+/////////onresize
+function onResize() {
+	var getWidth = getBrowserWidth();
+	var getHeight = getBrowserHeight();
+
+	if (WEB_GLOBAL.WEB_STATE === 'rwd') {
+		if (getWidth < 35.5 * 16) {
+			// 568
+			WEB_GLOBAL.VIEW_STATE = 'sm';
+		} else if (getWidth < 48 * 16) {
+			// 768
+			WEB_GLOBAL.VIEW_STATE = 'md';
+		} else if (getWidth < 64 * 16) {
+			// 1024
+			WEB_GLOBAL.VIEW_STATE = 'lg';
+		} else {
+			// 1280
+			WEB_GLOBAL.VIEW_STATE = 'xl';
+		}
+	}
+	// console.log("getWidth2 -- " + WEB_GLOBAL.VIEW_STATE)
+}
+
+function goToTop() {
+	// const topObject = topDom
+	var page = $('#page').val();
+	var scrollNow = $(window).scrollTop();
+	// $('header').css('top', scrollNow)
+	$(window).scroll(function (e) {
+		WEB_GLOBAL.SCROLL = $(e.currentTarget).scrollTop();
+		if (WEB_GLOBAL.SCROLL > 500) {
+			$('.goto_top').fadeIn();
+		} else {
+			$('.goto_top').fadeOut();
+		}
+
+		if (WEB_GLOBAL.SCROLL > 100 && WEB_GLOBAL.VIEW_STATE === 'xl') {
+			$('.header-menu,.header-all').addClass('fold');
+		} else {
+			$('.header-menu,.header-all').removeClass('fold');
+		}
+	});
+	$('.goto_top').click(function () {
+		runToTop();
+	});
+}
+
+////////
+/// --至網頁頂部
+///////
+function runToTop() {
+	$('html,body').animate({
+		scrollTop: 0
+	}, 500);
+}
+
+function scrollToObj(scrollObj, Odelta, Odelay, Otime) {
+	// console.log($(scrollObj).position().top )
+	$('html,body').delay(Number(Odelay)).animate({
+		scrollTop: $(scrollObj).offset().top + Number(Odelta)
+	}, Number(Otime));
+}
+
+function bindSlider() {
+
+	$('.sliderItemGroup').slick({
+		dots: true, //顯示輪播圖片會顯示圓圈
+		infinite: true, //重覆輪播
+		slidesToShow: 1, //輪播顯示個數
+		slidesToScroll: 1, //輪播捲動個數
+		autoplay: true, //autoplay : 自動播放
+		autoplaySpeed: 5000,
+		arrows: false
+	});
+	$('.sliderArrowGroup .arrowLeft').bind('click', function (e) {
+		$('.sliderItemGroup').slick('slickPrev');
+	});
+	$('.sliderArrowGroup .arrowRight').bind('click', function (e) {
+		$('.sliderItemGroup').slick('slickNext');
+	});
+}
+
+function AUTHOR() {
+	function bind() {
+		$('.editorContent1,.editorContent2,.columnistContent1,.columnistContent2,.partnerContent1,.partnerContent2').slick({
+			dots: false, //顯示輪播圖片會顯示圓圈
+			infinite: true,
+			slidesToShow: 5, //輪播顯示個數
+			slidesToScroll: 5, //輪播捲動個數
+			arrows: false,
+			cssEase: 'linear',
+			responsive: [{
+				breakpoint: 1024,
+				settings: {
+					slidesToShow: 3,
+					slidesToScroll: 3,
+					swipeToSlide: true,
+					centerPadding: '45px',
+					centerMode: true,
+					speed: 50,
+					cssEase: 'ease'
+				}
+			}, {
+				breakpoint: 768,
+				settings: {
+					slidesToShow: 2,
+					slidesToScroll: 2,
+					swipeToSlide: true,
+					centerPadding: '30px',
+					centerMode: true,
+					speed: 150,
+					cssEase: 'ease'
+				}
+			}]
+		});
+
+		$('.editorGroupPt1 .sliderArrowGroup .arrowLeft').bind('click', function (e) {
+			$('.editorContent1').slick('slickPrev');
+		});
+		$('.editorGroupPt1 .sliderArrowGroup .arrowRight').bind('click', function (e) {
+			$('.editorContent1').slick('slickNext');
+		});
+		$('.editorGroupPt2 .sliderArrowGroup .arrowLeft').bind('click', function (e) {
+			$('.editorContent2').slick('slickPrev');
+		});
+		$('.editorGroupPt2 .sliderArrowGroup .arrowRight').bind('click', function (e) {
+			$('.editorContent2').slick('slickNext');
+		});
+		$('.columnistGroupPt1 .sliderArrowGroup .arrowLeft').bind('click', function (e) {
+			$('.columnistContent1').slick('slickPrev');
+		});
+		$('.columnistGroupPt1 .sliderArrowGroup .arrowRight').bind('click', function (e) {
+			$('.columnistContent1').slick('slickNext');
+		});
+		$('.columnistGroupPt2 .sliderArrowGroup .arrowLeft').bind('click', function (e) {
+			$('.columnistContent2').slick('slickPrev');
+		});
+		$('.columnistGroupPt2 .sliderArrowGroup .arrowRight').bind('click', function (e) {
+			$('.columnistContent2').slick('slickNext');
+		});
+		$('.partnerGroupPt1 .sliderArrowGroup .arrowLeft').bind('click', function (e) {
+			$('.partnerContent1').slick('slickPrev');
+		});
+		$('.partnerGroupPt1 .sliderArrowGroup .arrowRight').bind('click', function (e) {
+			$('.partnerContent1').slick('slickNext');
+		});
+		$('.partnerGroupPt2 .sliderArrowGroup .arrowLeft').bind('click', function (e) {
+			$('.partnerContent2').slick('slickPrev');
+		});
+		$('.partnerGroupPt2 .sliderArrowGroup .arrowRight').bind('click', function (e) {
+			$('.partnerContent2').slick('slickNext');
+		});
+	}
+	function init() {
+		bind();
+	}
+	init();
+}
+
+function INDEX() {
+	function init() {
+		$('.sliderIndex').slick({
+			centerMode: true,
+			centerPadding: '100px',
+			dots: true, //顯示輪播圖片會顯示圓圈
+			infinite: true, //重覆輪播
+			slidesToShow: 1, //輪播顯示個數
+			slidesToScroll: 1, //輪播捲動個數
+			autoplay: true, //autoplay : 自動播放
+			autoplaySpeed: 5000,
+			arrows: false,
+			responsive: [{
+				breakpoint: 1024,
+				settings: {
+					centerMode: false,
+					centerPadding: '0px'
+				}
+			}]
+		});
+		$('.sliderArrowGroup .arrowLeft').bind('click', function (e) {
+			$('.sliderIndex').slick('slickPrev');
+		});
+		$('.sliderArrowGroup .arrowRight').bind('click', function (e) {
+			$('.sliderIndex').slick('slickNext');
+		});
+
+		$('.sliderFeatured').on('init reInit afterChange', function (event, slick, currentSlide, nextSlide) {
+			//currentSlide is undefined on init -- set it to 0 in this case (currentSlide is 0 based)
+			var slickItemCount = slick.slideCount;
+			if (WEB_GLOBAL.VIEW_STATE == 'xl') {
+				if (slickItemCount <= 4) {
+					$('.sliderArrowGroup2').hide();
+				} else {
+					$('.sliderArrowGroup2').show();
+				}
+			} else {
+				if (slickItemCount <= 2) {
+					$('.sliderArrowGroup2').hide();
+				} else {
+					$('.sliderArrowGroup2').show();
+				}
+			}
+		});
+
+		$('.sliderFeatured').slick({
+			dots: false, //顯示輪播圖片會顯示圓圈
+			infinite: true, //重覆輪播
+			slidesToShow: 4, //輪播顯示個數
+			slidesToScroll: 1, //輪播捲動個數
+			autoplay: true, //autoplay : 自動播放
+			autoplaySpeed: 5000,
+			arrows: false,
+			nextArrow: '.sliderArrowGroup2 .arrowRight',
+			prevArrow: '.sliderArrowGroup2 .arrowLeft',
+			responsive: [{
+				breakpoint: 1024,
+				settings: {
+					slidesToShow: 2
+				}
+			}]
+		});
+
+		// $('.sliderArrowGroup2')
+		$('.sliderArrowGroup2 .arrowLeft').bind('click', function (e) {
+			$('.sliderFeatured').slick('slickPrev');
+		});
+		$('.sliderArrowGroup2 .arrowRight').bind('click', function (e) {
+			$('.sliderFeatured').slick('slickNext');
+		});
+
+		$('.newArticleBtn').bind('click', function (e) {
+			// let obj = $(e.currentTarget)
+			e.preventDefault();
+			$('.hotArticleBtn').removeClass('act');
+			$('.hotArticle').removeClass('open');
+			$('.newArticleBtn').addClass('act');
+			$('.newArticle').addClass('open');
+		});
+		$('.hotArticleBtn').bind('click', function (e) {
+			// let obj = $(e.currentTarget)
+			e.preventDefault();
+			$('.newArticleBtn').removeClass('act');
+			$('.newArticle').removeClass('open');
+			$('.hotArticleBtn').addClass('act');
+			$('.hotArticle').addClass('open');
+		});
+	}
+	init();
+}
+
+function MAGA() {
+	function bind() {
+
+		$('.popCoverSlider').slick({
+			dots: false, //顯示輪播圖片會顯示圓圈
+			infinite: true, //重覆輪播
+			slidesToShow: 1, //輪播顯示個數
+			slidesToScroll: 1, //輪播捲動個數
+			autoplay: false, //autoplay : 自動播放
+			speed: 500,
+			arrows: false,
+			asNavFor: '.sliderItemGroup'
+		});
+
+		$('.sliderItemGroup .sliderItem').bind('click', function (e) {
+			var currentSlide = $('.sliderItemGroup').slick('slickCurrentSlide');
+			$('.coverWallSlider').fadeIn('fast');
+			$('.popCoverSlider').slick('slickGoTo', currentSlide, true);
+		});
+
+		$('.popCoverSlider').on('afterChange', function (event, slick, currentSlide, nextSlide) {
+			$('.nowPopPicture').text(currentSlide + 1);
+		});
+	}
+
+	function init() {
+		new bindSlider();
+		// new bannerFixed('footer',30,'.fixedPart2',0)
+		bind();
+	}
+	init();
+}
+
+function BOOK() {
+	function init() {
+		// new bannerFixed('footer',30,'.fixedPart2',0)
+		$('.bookIntor,.bookCatalog,.bookRecommend').bind('click', function (e) {
+			e.preventDefault();
+			var obj = $(e.currentTarget);
+			$('.bookIntor,.bookCatalog,.bookRecommend').removeClass('btnActivity');
+			obj.addClass('btnActivity');
+			var gotoObj = obj.attr('href');
+
+			scrollToObj(gotoObj, -130, 0, 500);
+		});
+	}
+	init();
+}
+
+function TOPIC() {
+	function bind() {
+		$('.topicFold').bind('click', function (e) {
+			var obj = $(e.currentTarget);
+			obj.addClass('foldClose');
+			setTimeout(function () {
+				obj.siblings('.topicUnfold').removeClass('foldClose');
+			}, 500);
+		});
+		$('.closeGroup').bind('click', function (e) {
+			// let obj = $(e.currentTarget)
+			var parent = $(e.currentTarget.parentNode);
+			parent.addClass('foldClose');
+			scrollToObj(parent.parent('.topicContent'), -250, 250, 1000);
+			setTimeout(function () {
+				parent.siblings('.topicFold').removeClass('foldClose');
+			}, 1250);
+		});
+	}
+	function init() {
+		bind();
+	}
+	init();
+}
+
+function BIGCLASS() {
+	function init() {
+		new bindSlider();
+	}
+	init();
+}
+
+function PUBLICATION() {
+	function init() {
+		bindSlider();
+	}
+	init();
+}
+
+function TAG() {
+	function init() {
+		$('.columnist_moreOpen').bind('click', function (e) {
+			$('.columnist').addClass('open');
+		});
+		$('.columnist_moreClose').bind('click', function (e) {
+			$('.columnist').removeClass('open');
+		});
+	}
+	init();
+}
+
+function PAGE() {
+	var omitSite = 500;
+	function setOmit() {
+		$(".bigCoverSlider .sliderItem .sliderItemContent").each(function () {
+			// console.log(Blength($(this).text()));
+			var word = $(this).find('.slideText').text();
+			var newWord = subBtyes(word, omitSite);
+			if (Blength(word) > omitSite) {
+				newWord = newWord + '...';
+			}
+			$(this).find('.slideTextShow').text(newWord);
+		});
+	}
+
+	function changeOmit() {
+		if (WEB_GLOBAL.VIEW_STATE === 'lg') {
+			omitSite = 135;
+		} else if (WEB_GLOBAL.VIEW_STATE === 'md') {
+			omitSite = 90;
+		} else if (WEB_GLOBAL.VIEW_STATE === 'sm') {
+			omitSite = 62;
+		}
+		setOmit();
+	}
+
+	function bind() {
+		var silderReady = false;
+
+		$('.return,.return_MB').bind('click', function (e) {
+			$('.coverWallSlider').fadeOut('fast');
+			$('.coverWall').fadeOut('fast');
+			$('.wrapper').fadeIn('fast');
+		});
+
+		$('.smallIconGroup .sliderMore').bind('click', function (e) {
+			$('.coverWall').fadeIn('fast');
+			$('.coverWallSlider').fadeOut('fast');
+			$('.wrapper').fadeOut('fast');
+			runToTop();
+		});
+
+		$('.smallIconGroup .sliderOpen').bind('click', function (e) {
+			$('.coverWallSlider').fadeIn('fast');
+			$('.coverWall').fadeOut('fast');
+			$('.popCoverSlider').slick('slickGoTo', 0, true);
+		});
+
+		$('.coverWallItem').bind('click', function (e) {
+			var objCount = $('.coverWallItem').index(e.currentTarget);
+			$('.coverWallSlider').fadeIn('fast');
+			$('.coverWall').fadeOut('fast');
+			$('.wrapper').fadeOut('fast');
+			$('.popCoverSlider').slick('slickGoTo', objCount, true);
+			runToTop();
+		});
+
+		$('.pageViewCoverGroup').bind('click', function (e) {
+			$('.coverWallSlider').fadeIn('fast');
+			$('.coverWall').fadeOut('fast');
+			$('.wrapper').fadeOut('fast');
+			setSlider();
+			runToTop();
+		});
+
+		$('.allView,.morePic').bind('click', function (e) {
+			$('.coverWallSlider').fadeOut('fast');
+			$('.coverWall').fadeIn('fast');
+			$('.wrapper').fadeOut('fast');
+			runToTop();
+		});
+
+		function setSlider() {
+			if (silderReady) return;
+
+			silderReady = true;
+
+			$('.smallCoverSlider').slick({
+				vertical: true,
+				dots: false, //顯示輪播圖片會顯示圓圈
+				slidesToShow: 5, //輪播顯示個數
+				slidesToScroll: 5, //輪播捲動個數
+				arrows: false
+				// asNavFor: '.popCoverSlider',
+
+			});
+			$('.smallCoverGroup .sliderArrowGroup .arrowLeft').bind('click', function (e) {
+				$('.smallCoverSlider').slick('slickPrev');
+			});
+
+			$('.smallCoverGroup .sliderArrowGroup .arrowRight').bind('click', function (e) {
+				$('.smallCoverSlider').slick('slickNext');
+			});
+
+			$('.popCoverSlider').slick({
+				dots: false, //顯示輪播圖片會顯示圓圈
+				infinite: true, //重覆輪播
+				slidesToShow: 1, //輪播顯示個數
+				slidesToScroll: 1, //輪播捲動個數
+				autoplay: false, //autoplay : 自動播放
+				speed: 500,
+				arrows: false,
+				asNavFor: '.smallCoverSlider'
+			});
+			$('.popCoverSlider').on('afterChange', function (event, slick, currentSlide, nextSlide) {
+				$('.nowPopPicture').text(currentSlide + 1);
+			});
+
+			$('.smallCoverSlider .sliderItem').bind('click', function (e) {
+				var obj = $(e.currentTarget);
+				var obj_id = Number(obj.attr('data-id'));
+				$('.popCoverSlider').slick('slickGoTo', obj_id, true);
+			});
+		}
+	}
+
+	function init() {
+		bind();
+		changeOmit();
+		$(window).resize(function () {
+			changeOmit();
+		});
+	}
+
+	init();
+}
+
+var app = {};
+function APP() {
+	window.requestAnimFrame = function () {
+		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+			window.setTimeout(callback, 1000 / 60);
+		};
+	}();
+
+	function initial_page() {
+		var page = $('#page').val();
+		switch (page) {
+			case 'index':
+				new INDEX();
+				break;
+			case 'page':
+				new PAGE();
+				break;
+			case 'bigclass':
+				new BIGCLASS();
+				break;
+			case 'publicationlist':
+
+				break;
+			case 'bookpage':
+				new BOOK();
+				break;
+			case 'magazinepage':
+				new MAGA();
+				break;
+			case 'publication':
+				new PUBLICATION();
+				break;
+			case 'topiclist':
+
+				break;
+			case 'topicpage':
+
+				break;
+			case 'tag':
+				new TAG();
+				break;
+			case 'topic':
+				new TOPIC();
+				break;
+			case 'author':
+				new AUTHOR();
+				break;
+			default:
+				
+				break;
+		}
+	}
+
+	function global_bind() {
+		$('.close').bind('click', function (e) {
+			$('.pop').fadeOut('fast');
+		});
+
+		$('a,.itemContentGroup,.sliderGroup,.sliderGroup2,.pt5Arrow .arrowLeft,.pt5Arrow .arrowRight').bind('mouseover', function (e) {
+			var obj = $(e.currentTarget);
+			if (!device.mobile() && !device.tablet()) {
+				obj.addClass('mouseOver');
+			}
+		});
+		$('a,.itemContentGroup,.sliderGroup,.sliderGroup2,.pt5Arrow .arrowLeft,.pt5Arrow .arrowRight').bind('mouseout', function (e) {
+			var obj = $(e.currentTarget);
+			if (!device.mobile() && !device.tablet()) {
+				obj.removeClass('mouseOver');
+			}
+		});
+	}
+
+	function viewportSet() {
+		// let page = $('#page').val()
+		if (device.mobile()) {
+			$('meta[name="viewport"]').attr('content', "width=500,user-scalable=no");
+		} else if (device.tablet()) {
+			$('meta[name="viewport"]').attr('content', "width=768,user-scalable=no");
+		} else {
+			$('meta[name="viewport"]').attr('content', "width=device-width,user-scalable=no");
+		}
+	}
+
+	function setResize() {
+		// let pageName = $('#page').val()
+		onResize();
+		if (WEB_GLOBAL.VIEW_STATE === 'xl') {
+			$('.header-menu,.header-all,.main_wapper,footer').removeClass('active');
+			$('.header-all').removeClass('mHide');
+			$('.header-content').show();
+			if (WEB_GLOBAL.SCROLL > 200) {
+				$('.header-menu').addClass('fold');
+				$('.header-all').addClass('fold');
+			}
+		} else {
+			$('.header-menu,.header-all').removeClass('fold');
+		}
+		if (WEB_GLOBAL.VIEW_STATE === 'sm') {
+			pageOptions.showTotal = 5;
+			pageOptions.centerShow = 2;
+			dynamicPagingFunc(pageOptions);
+		} else {
+			pageOptions.showTotal = 10;
+			pageOptions.centerShow = 3;
+			dynamicPagingFunc(pageOptions);
+		}
+	}
+
+	function initial() {
+		WEB_GLOBAL.WEB_STATE = 'rwd';
+		// console.log('app start.....' + WEB_GLOBAL.WEB_STATE)
+
+		$(window).resize(function () {
+			setResize();
+		});
+		viewportSet();
+		new LoadModle($('body img'), function () {
+			$('.loading').fadeOut();
+			WEB_MENU = new MENU($('#menu'), $('#toggle'), $('.wrapper'));
+			WEB_MENU.init();
+			setResize();
+			goToTop();
+			global_bind();
+			initial_page();
+		});
+	}
+
+	initial();
+}
+
+app.start = new APP();
+
+}());

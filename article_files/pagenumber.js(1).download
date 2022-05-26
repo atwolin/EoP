@@ -1,0 +1,109 @@
+////////////////////////
+//pageOption（設全域變數）
+///////////////////////
+var pageOptions = {
+	pageTotal:15,	//總頁數
+	curPage:1,		//當前頁
+	paginationId:'',//頁碼外層ID
+	showTotal:10,	//顯示頁數
+	centerShow:3,	//中間區塊顯示頁碼數量（當前頁前後Ｎ頁）
+	centerTagHref: '?page=',		//中間頁碼連結內容
+};
+
+
+function dynamicPagingFunc(pageOptions){
+	var pageTotal = pageOptions.pageTotal || 15;
+	var curPage = pageOptions.curPage || 1;
+	var showTotal = pageOptions.showTotal || 10;
+	var centerShow = pageOptions.centerShow || 3;
+	var doc = document;
+	var paginationId = doc.getElementById(''+pageOptions.paginationId+'') || doc.getElementById('pagination');
+	var centerTagHref = pageOptions.centerTagHref || '?page=';
+	var html = '';
+	if(curPage > pageTotal){
+		curPage = 1;
+	}
+
+	if(paginationId){
+		html = appendItem(pageTotal,curPage,html,showTotal,centerShow,centerTagHref);
+		paginationId.innerHTML = html;
+	}
+	
+}
+function appendItem(pageTotal,curPage,html,showTotal,centerShow,centerTagHref){
+	var starPage = 0;
+	var endPage = 0;
+
+	/////////////////
+	// 建立上一頁標籤
+	/////////////////
+	if(curPage === 1) {
+		html += '<a id="prevBtn" href="javascript:void(0)">&lt;</a>';
+	} else {
+		html += '<a id="prevBtn"' + ' href=' + centerTagHref + Number(curPage-1) + '>&lt;</a>';
+	}
+	
+
+	//////////////////
+	// 建立中間頁碼標籤
+	//////////////////
+	if(pageTotal <= showTotal){
+		starPage = 1;
+		endPage = pageTotal;    
+	}else if(pageTotal > showTotal && curPage <= showTotal-1){
+		starPage = 1;
+		endPage = showTotal;
+		if(curPage == showTotal-1){
+			endPage = showTotal;
+		}
+	}else{
+		if(pageTotal <= curPage+centerShow){
+			starPage = curPage-centerShow*2;
+			endPage = pageTotal-1;
+		}else{
+			starPage = curPage-centerShow;
+			endPage = curPage+centerShow;
+		}
+		html += '<a>1</a><span>...</span>';
+	}
+	
+	for(let i = starPage;i <= endPage;i++){
+		if(i==curPage){
+			html += '<a id="nowpage">'+i+'</a>';	//當前頁碼
+		}else{
+			html += '<a href=' + centerTagHref + i + '>' + i + '</a>';		//其他頁碼
+		}
+	}
+	/////////////////////
+	// 建立中間頁碼標籤 END
+	//////////////////////
+
+
+	/////////////////////
+	// 建立下一頁標籤
+	/////////////////////
+	if(pageTotal<=showTotal){
+		////////next Tag
+		if(curPage === pageTotal) {
+			html += '<a id="prevBtn" href="javascript:void(0)">&gt;</a>';
+		} else {
+			html += '<a id="prevBtn"' + ' href=' + centerTagHref + Number(curPage+1) + '>&gt;</a>';
+		}
+		// html += nextTag;
+	}else{
+		if(curPage<pageTotal-centerShow){ 
+			html += '<span>...</span>';
+		}
+		if(curPage<=pageTotal){
+			html += '<a href=' + centerTagHref + pageTotal + '>' + pageTotal + '</a>';
+		}
+
+		////////next Tag
+		if(curPage === pageTotal) {
+			html += '<a id="prevBtn" href="javascript:void(0)">&gt;</a>';
+		} else {
+			html += '<a id="prevBtn"' + ' href=' + centerTagHref + Number(curPage+1) + '>&gt;</a>';
+		}
+	}
+	return html;
+}
