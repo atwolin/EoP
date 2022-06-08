@@ -161,7 +161,7 @@ body * { box-sizing: border-box; font-family: "Noto Sans TC", Arial, Helvetica, 
 
 .header-menu .menu-content .main-menu .menu_item15 { display: none; }
 
-.header-menu .menu-content .main-menu .menu_item0 { width: 20px; height: 18px; top: 3px; background-image: url(../images/search.png); }
+.header-menu .menu-content .main-menu .menu_item0 { width: 20px; height: 18px; top: 3px; background-image: url(../index_files/search_menu.png); }
 
 .header-menu .menu-content .main-menu .mouseOver a, .header-menu .menu-content .main-menu .active a { color: #fc391d; font-weight: bolder; }
 
